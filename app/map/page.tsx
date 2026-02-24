@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import FilterBar from '@/components/map/FilterBar'
@@ -55,6 +56,10 @@ const SAMPLE_PLACES: Place[] = [
 ]
 
 export default function MapPage() {
+  const searchParams = useSearchParams()
+  const campusLat = searchParams.get('lat')
+  const campusLng = searchParams.get('lng')
+
   const [category, setCategory] = useState('all')
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null)
   const [places, setPlaces] = useState<Place[]>(SAMPLE_PLACES)
@@ -88,6 +93,7 @@ export default function MapPage() {
           places={filteredPlaces}
           onPlaceClick={setSelectedPlace}
           selectedPlace={selectedPlace}
+          center={campusLat && campusLng ? { lat: parseFloat(campusLat), lng: parseFloat(campusLng) } : undefined}
         />
       </div>
 

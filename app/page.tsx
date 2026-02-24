@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import CampusSearch from '@/components/CampusSearch'
 
 export default function HomePage() {
   const [scrolled, setScrolled] = useState(false)
@@ -37,7 +38,7 @@ export default function HomePage() {
       </div>
 
       {/* HERO — full width image with overlay content */}
-      <section className="relative w-full h-[630px] overflow-hidden">
+      <section className="relative w-full h-[630px] overflow-visible">
 
         {/* Background image */}
         <Image
@@ -85,27 +86,8 @@ export default function HomePage() {
           </p>
 
           {/* Campus search bar */}
-          <div className="flex items-center bg-white rounded-full shadow-xl overflow-hidden w-full max-w-md mt-10">
-            <div className="flex items-center gap-2 px-5 py-4 flex-1">
-              <svg className="w-5 h-5 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <input
-                type="text"
-                placeholder="Enter your campus or university"
-                className="flex-1 text-sm text-gray-700 outline-none placeholder-gray-400"
-              />
-            </div>
-            <button
-              className="flex items-center justify-center w-10 h-10 rounded-full mr-2 transition-all hover:opacity-90 shrink-0"
-              style={{ background: '#9d00ff' }}>
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+          <div className="mt-10 w-full max-w-lg">
+            <CampusSearch />
           </div>
 
           {/* Sign in CTA */}
