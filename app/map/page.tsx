@@ -22,162 +22,6 @@ interface Place {
   address: string
 }
 
-const SAMPLE_PLACES: Place[] = [
-  // Food & Coffee
-  {
-    id: '1',
-    name: 'Intelligentsia Coffee',
-    lat: 41.8948,
-    lng: -87.6365,
-    discount_description: '15% off all drinks',
-    category: ['coffee'],
-    avg_rating: 4.5,
-    address: '53 W Jackson Blvd, Chicago'
-  },
-  {
-    id: '2',
-    name: 'Cafecito',
-    lat: 41.8756,
-    lng: -87.6244,
-    discount_description: '10% off orders',
-    category: ['food', 'coffee'],
-    avg_rating: 4.3,
-    address: '26 E Congress Pkwy, Chicago'
-  },
-  {
-    id: '3',
-    name: 'Pizano\'s Pizza',
-    lat: 41.8827,
-    lng: -87.6278,
-    discount_description: '20% off with student ID',
-    category: ['food'],
-    avg_rating: 4.4,
-    address: '61 E Madison St, Chicago'
-  },
-  // Museums — free
-  {
-    id: '4',
-    name: 'Chicago Cultural Center',
-    lat: 41.8836,
-    lng: -87.6249,
-    discount_description: 'Always free for everyone',
-    category: ['museums'],
-    avg_rating: 4.8,
-    address: '78 E Washington St, Chicago'
-  },
-  {
-    id: '5',
-    name: 'Museum of Contemporary Art',
-    lat: 41.8970,
-    lng: -87.6211,
-    discount_description: 'Free Tuesdays 5–9pm',
-    category: ['museums'],
-    avg_rating: 4.6,
-    address: '220 E Chicago Ave, Chicago'
-  },
-  {
-    id: '6',
-    name: 'National Museum of Mexican Art',
-    lat: 41.8558,
-    lng: -87.6731,
-    discount_description: 'Always free admission',
-    category: ['museums'],
-    avg_rating: 4.7,
-    address: '1852 W 19th St, Chicago'
-  },
-  {
-    id: '7',
-    name: 'Art Institute of Chicago',
-    lat: 41.8796,
-    lng: -87.6237,
-    discount_description: 'Free with university student ID',
-    category: ['museums'],
-    avg_rating: 4.9,
-    address: '111 S Michigan Ave, Chicago'
-  },
-  {
-    id: '8',
-    name: 'DuSable Black History Museum',
-    lat: 41.7924,
-    lng: -87.6065,
-    discount_description: 'Free every Wednesday',
-    category: ['museums'],
-    avg_rating: 4.7,
-    address: '740 E 56th Pl, Chicago'
-  },
-  {
-    id: '9',
-    name: 'Museum of Contemporary Photography',
-    lat: 41.8724,
-    lng: -87.6243,
-    discount_description: 'Always free admission',
-    category: ['museums'],
-    avg_rating: 4.5,
-    address: '600 S Michigan Ave, Chicago'
-  },
-  {
-    id: '10',
-    name: 'Hyde Park Art Center',
-    lat: 41.7991,
-    lng: -87.5950,
-    discount_description: 'Always free admission',
-    category: ['museums'],
-    avg_rating: 4.4,
-    address: '5020 S Cornell Ave, Chicago'
-  },
-  // Sports
-  {
-    id: '11',
-    name: 'Chicago Bulls',
-    lat: 41.8807,
-    lng: -87.6742,
-    discount_description: 'Student tickets from $20 with .edu',
-    category: ['sports'],
-    avg_rating: 4.6,
-    address: '1901 W Madison St, Chicago'
-  },
-  {
-    id: '12',
-    name: 'Chicago Blackhawks',
-    lat: 41.8807,
-    lng: -87.6742,
-    discount_description: 'Student rush tickets with .edu',
-    category: ['sports'],
-    avg_rating: 4.7,
-    address: '1901 W Madison St, Chicago'
-  },
-  {
-    id: '13',
-    name: 'Chicago Cubs',
-    lat: 41.9484,
-    lng: -87.6553,
-    discount_description: 'Last-minute tickets with .edu email',
-    category: ['sports'],
-    avg_rating: 4.8,
-    address: '1060 W Addison St, Chicago'
-  },
-  // Theater
-  {
-    id: '14',
-    name: 'Goodman Theatre',
-    lat: 41.8836,
-    lng: -87.6319,
-    discount_description: '$5 tickets via Teen Arts Pass',
-    category: ['theater'],
-    avg_rating: 4.7,
-    address: '170 N Dearborn St, Chicago'
-  },
-  {
-    id: '15',
-    name: 'Lyric Opera of Chicago',
-    lat: 41.8858,
-    lng: -87.6367,
-    discount_description: '$5 tickets via Teen Arts Pass',
-    category: ['theater'],
-    avg_rating: 4.8,
-    address: '20 N Wacker Dr, Chicago'
-  },
-]
 
 function MapPageContent() {
   const [tab, setTab] = useState<'map' | 'discover'>('map')
@@ -185,6 +29,11 @@ function MapPageContent() {
   const [search, setSearch] = useState('')
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null)
   const [user, setUser] = useState<any>(null)
+  const [userProfile, setUserProfile] = useState<any>(null)
+  const [places, setPlaces] = useState<Place[]>([])
+  const [loadingPlaces, setLoadingPlaces] = useState(true)
+  const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null)
+  const [locating, setLocating] = useState(false)
   const searchParams = useSearchParams()
   const supabase = createClient()
 
@@ -196,11 +45,50 @@ function MapPageContent() {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
+      if (user) {
+        const { data } = await supabase
+          .from('users')
+          .select('username')
+          .eq('id', user.id)
+          .single()
+        setUserProfile(data)
+      }
     }
     getUser()
   }, [])
 
-  const filteredPlaces = SAMPLE_PLACES.filter(place => {
+  useEffect(() => {
+    const fetchPlaces = async () => {
+      const { data, error } = await supabase
+        .from('places')
+        .select('id, name, address, lat, lng, category, discount_description, avg_rating')
+
+      if (error) {
+        console.error('Error fetching places:', error)
+      } else {
+        setPlaces(data || [])
+      }
+      setLoadingPlaces(false)
+    }
+
+    fetchPlaces()
+  }, [])
+
+  const locateUser = () => {
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        setLocating(false)
+      },
+      (err) => {
+        console.error(err)
+        setLocating(false)
+      }
+    )
+  }
+
+  const filteredPlaces = places.filter(place => {
     const matchesCategory = category === 'all' || place.category.includes(category)
     const matchesSearch = search === '' ||
       place.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -243,12 +131,30 @@ function MapPageContent() {
             )}
           </div>
 
+          {/* Locate button */}
+          <button
+            onClick={locateUser}
+            className="w-9 h-9 flex items-center justify-center rounded-full border border-gray-200 hover:border-purple-400 transition-all shrink-0"
+            title="Use my location">
+            {locating ? (
+              <span className="text-xs animate-spin">⟳</span>
+            ) : (
+              <svg className="w-4 h-4" style={{ color: userLocation ? '#9D00FF' : '#9ca3af' }}
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            )}
+          </button>
+
           {/* Avatar or sign in */}
           {user ? (
             <Link href="/profile"
               className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shrink-0"
               style={{ background: '#9D00FF' }}>
-              {user.email?.[0].toUpperCase()}
+              {userProfile?.username?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
             </Link>
           ) : (
             <Link href="/auth/login"
@@ -298,14 +204,20 @@ function MapPageContent() {
 
       {/* CONTENT */}
       <div className="flex-1 overflow-hidden">
-        {tab === 'map' ? (
+        {loadingPlaces ? (
+          <div className="flex-1 flex items-center justify-center h-full">
+            <div className="text-sm text-gray-400">Loading spots...</div>
+          </div>
+        ) : tab === 'map' ? (
           <MapView
             places={filteredPlaces}
             onPlaceClick={setSelectedPlace}
             selectedPlace={selectedPlace}
-            center={campusLat && campusLng
-              ? { lat: parseFloat(campusLat), lng: parseFloat(campusLng) }
-              : undefined}
+            center={
+              campusLat && campusLng
+                ? { lat: parseFloat(campusLat), lng: parseFloat(campusLng) }
+                : userLocation || undefined
+            }
           />
         ) : (
           <DiscoverView
