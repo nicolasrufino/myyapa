@@ -8,7 +8,6 @@ const CATEGORIES = [
   { label: 'Museums', value: 'museums' },
   { label: 'Sports', value: 'sports' },
   { label: 'Theater', value: 'theater' },
-  { label: 'Shopping', value: 'shopping' },
 ]
 
 interface FilterBarProps {

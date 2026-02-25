@@ -292,7 +292,7 @@ export default function ProfilePage() {
             { label: ' Saved places', href: '/profile/saved' },
             { label: ' My reviews', href: '/profile/reviews' },
             { label: ' Order history', href: '/profile/orders' },
-            { label: ' Rewards & points', href: '/profile/rewards' },
+            { label: ' Rewards & points', href: '/rewards' },
             { label: ' Add a place', href: '/places/add' },
             { label: ' Support', href: '/support' },
           ].map(({ label, href }) => (

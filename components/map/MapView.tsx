@@ -3,16 +3,6 @@
 import { useEffect, useRef } from 'react'
 import { APIProvider, Map, AdvancedMarker, Pin, useMap } from '@vis.gl/react-google-maps'
 
-const MAP_STYLES: google.maps.MapTypeStyle[] = [
-  { featureType: 'poi', elementType: 'all', stylers: [{ visibility: 'off' }] },
-  { featureType: 'poi.park', elementType: 'geometry.fill', stylers: [{ visibility: 'on' }, { color: '#e8f5e9' }] },
-  { featureType: 'transit', elementType: 'all', stylers: [{ visibility: 'off' }] },
-  { featureType: 'road', elementType: 'geometry.fill', stylers: [{ color: '#ffffff' }] },
-  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#e5e7eb' }] },
-  { featureType: 'water', elementType: 'geometry.fill', stylers: [{ color: '#bfdbfe' }] },
-  { featureType: 'landscape', elementType: 'geometry.fill', stylers: [{ color: '#f9fafb' }] },
-]
-
 interface Place {
   id: string
   name: string
@@ -29,9 +19,10 @@ interface MapViewProps {
   onPlaceClick: (place: Place) => void
   selectedPlace: Place | null
   center?: { lat: number, lng: number }
+  activePlaceIds?: string[]
 }
 
-function MapContent({ places, onPlaceClick, selectedPlace, center }: MapViewProps) {
+function MapContent({ places, onPlaceClick, selectedPlace, center, activePlaceIds }: MapViewProps) {
   const map = useMap()
   const prevCenter = useRef<{ lat: number, lng: number } | null>(null)
 
@@ -46,13 +37,6 @@ function MapContent({ places, onPlaceClick, selectedPlace, center }: MapViewProp
     map.setZoom(15)
   }, [map, center])
 
-  useEffect(() => {
-    if (map) {
-      // @ts-ignore
-      map.setOptions({ styles: MAP_STYLES })
-    }
-  }, [map])
-
   return (
     <>
       {places.map(place => (
@@ -61,8 +45,20 @@ function MapContent({ places, onPlaceClick, selectedPlace, center }: MapViewProp
           position={{ lat: place.lat, lng: place.lng }}
           onClick={() => onPlaceClick(place)}>
           <Pin
-            background={selectedPlace?.id === place.id ? '#7a00cc' : '#9D00FF'}
-            borderColor={selectedPlace?.id === place.id ? '#5a0099' : '#7a00cc'}
+            background={
+              selectedPlace?.id === place.id
+                ? '#7a00cc'
+                : activePlaceIds && !activePlaceIds.includes(place.id)
+                  ? '#D8B4FE'
+                  : '#9D00FF'
+            }
+            borderColor={
+              selectedPlace?.id === place.id
+                ? '#5a0099'
+                : activePlaceIds && !activePlaceIds.includes(place.id)
+                  ? '#c084fc'
+                  : '#7a00cc'
+            }
             glyphColor='#ffffff'
           />
         </AdvancedMarker>
@@ -71,18 +67,17 @@ function MapContent({ places, onPlaceClick, selectedPlace, center }: MapViewProp
   )
 }
 
-export default function MapView({ places, onPlaceClick, selectedPlace, center }: MapViewProps) {
+export default function MapView({ places, onPlaceClick, selectedPlace, center, activePlaceIds }: MapViewProps) {
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
       <Map
         defaultCenter={{ lat: 41.8781, lng: -87.6298 }}
         defaultZoom={13}
-        mapId="888cfd32ecf4d3e1ec8ec92a"
+        mapId="9572d59f0ba67a57f25bf982"
         style={{ width: '100%', height: '100%' }}
         gestureHandling="greedy"
         streetViewControl={false}
-        scrollwheel={false}
-        disableDoubleClickZoom={true}
+        fullscreenControl={false}
         minZoom={11}
         maxZoom={17}>
         <MapContent
@@ -90,6 +85,7 @@ export default function MapView({ places, onPlaceClick, selectedPlace, center }:
           onPlaceClick={onPlaceClick}
           selectedPlace={selectedPlace}
           center={center}
+          activePlaceIds={activePlaceIds}
         />
       </Map>
     </APIProvider>

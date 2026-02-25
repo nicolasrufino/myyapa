@@ -189,7 +189,7 @@ export default function HomePage() {
               <p style={{ fontFamily: 'var(--font-dm)' }} className="text-gray-900 text-sm leading-relaxed">
                 The full Yapa experience on your phone. Find deals, order ahead, and earn rewards on the go.
               </p>
-              <Link href="/download" className="text-sm font-semibold" style={{ color: '#9d00ff' }}>
+              <Link href="/rewards?feature=app" className="text-sm font-semibold" style={{ color: '#9d00ff' }}>
                 Download the app →
               </Link>
             </div>

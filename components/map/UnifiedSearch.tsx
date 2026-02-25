@@ -1,8 +1,18 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, JSX } from 'react'
 import { useRouter } from 'next/navigation'
 import { CHICAGO_CAMPUSES, Campus } from '@/lib/campuses'
+
+const CATEGORY_ICONS: Record<string, JSX.Element> = {
+  food: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12M3 12h18"/></svg>,
+  coffee: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 2v4m4-4v4m4-4v4M4 10h16l-2 10H6L4 10zm12 0h2a2 2 0 010 4h-2"/></svg>,
+  drinks: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21a48.309 48.309 0 01-8.135-.687c-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/></svg>,
+  museums: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 21h18M3 10h18M3 7l9-4 9 4M4 10h1v11H4V10zm5 0h1v11H9V10zm5 0h1v11h-1V10zm5 0h1v11h-1V10z"/></svg>,
+  sports: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path strokeLinecap="round" strokeLinejoin="round" d="M12 3c0 0 3 4.5 3 9s-3 9-3 9M12 3c0 0-3 4.5-3 9s3 9 3 9M3 12h18"/></svg>,
+  theater: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75s.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z"/></svg>,
+  shopping: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>,
+}
 
 interface Place {
   id: string
@@ -263,13 +273,14 @@ export default function UnifiedSearch({
                     onMouseEnter={() => setHighlightedIndex(globalIndex)}
                     className="w-full flex items-center gap-3 px-4 py-3 transition-all text-left border-b border-gray-50 last:border-0"
                     style={{ background: highlightedIndex === globalIndex ? '#f5f0ff' : 'white' }}>
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-base"
-                      style={{ background: '#f5f0ff' }}>
-                      {place.category?.[0] === 'coffee' ? '☕' :
-                       place.category?.[0] === 'food' ? '🍕' :
-                       place.category?.[0] === 'museums' ? '🎨' :
-                       place.category?.[0] === 'sports' ? '🏟️' :
-                       place.category?.[0] === 'theater' ? '🎭' : '📍'}
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: '#f5f0ff', color: '#9D00FF' }}>
+                      {CATEGORY_ICONS[place.category?.[0]] ?? (
+                        <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+                        </svg>
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="text-sm font-semibold text-gray-900">{place.name}</div>

@@ -42,9 +42,11 @@ export default function DiscoverView({ places, onPlaceClick }: DiscoverViewProps
                 <p className="text-xs text-gray-400 mb-2">{place.address}</p>
 
                 {/* Discount badge */}
-                <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold text-white"
-                  style={{ background: '#9D00FF' }}>
-                  {place.discount_description}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold text-white"
+                    style={{ background: '#9D00FF' }}>
+                    {place.discount_description}
+                  </div>
                 </div>
               </div>
 

@@ -6,13 +6,12 @@ import { createClient } from '@/lib/supabase/client'
 import { CHICAGO_CAMPUSES } from '@/lib/campuses'
 
 const CATEGORIES = [
-  { value: 'food', label: '🍕 Food', desc: 'Restaurants & eats' },
-  { value: 'coffee', label: '☕ Coffee', desc: 'Cafés & study spots' },
-  { value: 'drinks', label: '🥤 Drinks', desc: 'Boba, juice & more' },
-  { value: 'museums', label: '🎨 Museums', desc: 'Free & discounted' },
-  { value: 'sports', label: '🏟️ Sports', desc: 'Games & events' },
-  { value: 'theater', label: '🎭 Theater', desc: 'Shows & performances' },
-  { value: 'shopping', label: '🛍️ Shopping', desc: 'Deals & retail' },
+  { value: 'food', label: 'Food', desc: 'Restaurants & eats' },
+  { value: 'coffee', label: 'Coffee', desc: 'Cafés & study spots' },
+  { value: 'drinks', label: 'Drinks', desc: 'Boba, juice & more' },
+  { value: 'museums', label: 'Museums', desc: 'Free & discounted' },
+  { value: 'sports', label: 'Sports', desc: 'Games & events' },
+  { value: 'theater', label: 'Theater', desc: 'Shows & performances' },
 ]
 
 const STEPS = ['campuses', 'categories', 'edu'] as const
@@ -86,12 +85,20 @@ export default function OnboardingPage() {
 
       {/* Animated background shapes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute rounded-full opacity-20 animate-pulse"
-          style={{ width: 400, height: 400, background: '#9D00FF', top: -100, right: -100, animationDuration: '4s' }} />
-        <div className="absolute rounded-full opacity-10 animate-pulse"
-          style={{ width: 300, height: 300, background: '#9D00FF', bottom: -50, left: -80, animationDuration: '6s' }} />
-        <div className="absolute rounded-full opacity-15 animate-pulse"
-          style={{ width: 200, height: 200, background: '#7a00cc', top: '40%', left: '30%', animationDuration: '5s' }} />
+        <svg className="absolute top-0 right-0 w-96 h-96 opacity-10" viewBox="0 0 400 400">
+          <path d="M 300 0 Q 400 100 350 200 Q 300 300 400 400" fill="none" stroke="#9D00FF" strokeWidth="2"/>
+          <path d="M 350 0 Q 450 150 380 250 Q 320 350 420 400" fill="none" stroke="#9D00FF" strokeWidth="1.5"/>
+          <path d="M 400 50 Q 480 200 420 300 Q 360 400 450 450" fill="none" stroke="#7a00cc" strokeWidth="1"/>
+        </svg>
+        <svg className="absolute bottom-0 left-0 w-80 h-80 opacity-10" viewBox="0 0 400 400">
+          <path d="M 0 300 Q 100 200 50 100 Q 0 0 100 -50" fill="none" stroke="#9D00FF" strokeWidth="2"/>
+          <path d="M -50 350 Q 80 250 30 150 Q -20 50 80 0" fill="none" stroke="#9D00FF" strokeWidth="1.5"/>
+        </svg>
+        <svg className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 opacity-5" viewBox="0 0 400 400">
+          <circle cx="200" cy="200" r="150" fill="none" stroke="#9D00FF" strokeWidth="1"/>
+          <circle cx="200" cy="200" r="100" fill="none" stroke="#9D00FF" strokeWidth="1"/>
+          <circle cx="200" cy="200" r="50" fill="none" stroke="#9D00FF" strokeWidth="1"/>
+        </svg>
       </div>
 
       {/* Header */}
@@ -213,10 +220,7 @@ export default function OnboardingPage() {
                     borderColor: selectedCategories.includes(cat.value) ? '#9D00FF' : '#e5e7eb',
                     background: selectedCategories.includes(cat.value) ? '#f5f0ff' : 'white'
                   }}>
-                  <span className="text-2xl">{cat.label.split(' ')[0]}</span>
-                  <span className="text-sm font-semibold text-gray-900">
-                    {cat.label.split(' ').slice(1).join(' ')}
-                  </span>
+                  <span className="text-sm font-semibold text-gray-900">{cat.label}</span>
                   <span className="text-xs text-gray-500">{cat.desc}</span>
                   {selectedCategories.includes(cat.value) && (
                     <div className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center"

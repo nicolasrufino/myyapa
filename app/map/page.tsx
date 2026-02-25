@@ -35,6 +35,7 @@ function MapPageContent() {
   const [loadingPlaces, setLoadingPlaces] = useState(true)
   const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null)
   const [locating, setLocating] = useState(false)
+  const [selectedPlaceCenter, setSelectedPlaceCenter] = useState<{ lat: number, lng: number } | null>(null)
   const searchParams = useSearchParams()
   const supabase = createClient()
 
@@ -101,6 +102,18 @@ function MapPageContent() {
 
   const filteredPlaces = category === 'all' ? places : places.filter(p => p.category.includes(category))
 
+  const mapActivePlaceIds: string[] | undefined =
+    selectedPlace
+      ? [selectedPlace.id]
+      : category !== 'all'
+        ? filteredPlaces.map(p => p.id)
+        : undefined
+
+  const handlePlaceSelect = (place: Place) => {
+    setSelectedPlace(place)
+    setSelectedPlaceCenter({ lat: place.lat, lng: place.lng })
+  }
+
   return (
     <div className="relative w-full h-screen overflow-hidden flex flex-col">
 
@@ -117,7 +130,7 @@ function MapPageContent() {
           {/* Unified search */}
           <UnifiedSearch
             places={places}
-            onPlaceSelect={setSelectedPlace}
+            onPlaceSelect={handlePlaceSelect}
             userLocation={userLocation}
             campusCenter={campusLat && campusLng ? { lat: parseFloat(campusLat), lng: parseFloat(campusLng) } : null}
             campusName={campusName}
@@ -202,13 +215,15 @@ function MapPageContent() {
           </div>
         ) : tab === 'map' ? (
           <MapView
-            places={filteredPlaces}
-            onPlaceClick={setSelectedPlace}
+            places={places}
+            onPlaceClick={handlePlaceSelect}
             selectedPlace={selectedPlace}
+            activePlaceIds={mapActivePlaceIds}
             center={
-              campusLat && campusLng
+              selectedPlaceCenter ||
+              (campusLat && campusLng
                 ? { lat: parseFloat(campusLat), lng: parseFloat(campusLng) }
-                : userLocation || undefined
+                : userLocation || undefined)
             }
           />
         ) : (
