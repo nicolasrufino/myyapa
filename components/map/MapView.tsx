@@ -18,13 +18,14 @@ interface Place {
 
 interface MapViewProps {
   places: Place[]
+  privatePins?: any[]
   onPlaceClick: (place: Place) => void
   selectedPlace: Place | null
   center?: { lat: number, lng: number }
   activePlaceIds?: string[]
 }
 
-function MapContent({ places, onPlaceClick, selectedPlace, center, activePlaceIds }: MapViewProps) {
+function MapContent({ places, privatePins, onPlaceClick, selectedPlace, center, activePlaceIds }: MapViewProps) {
   const map = useMap()
   const prevCenter = useRef<{ lat: number, lng: number } | null>(null)
 
@@ -65,11 +66,23 @@ function MapContent({ places, onPlaceClick, selectedPlace, center, activePlaceId
           />
         </AdvancedMarker>
       ))}
+      {privatePins?.map(pin => (
+        <AdvancedMarker
+          key={pin.id}
+          position={{ lat: pin.lat, lng: pin.lng }}>
+          <div style={{
+            width: 14, height: 14, borderRadius: '50%',
+            background: 'white',
+            border: '2px solid #9D00FF',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+          }} />
+        </AdvancedMarker>
+      ))}
     </>
   )
 }
 
-export default function MapView({ places, onPlaceClick, selectedPlace, center, activePlaceIds }: MapViewProps) {
+export default function MapView({ places, privatePins, onPlaceClick, selectedPlace, center, activePlaceIds }: MapViewProps) {
   const { theme } = useTheme()
   return (
     <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
@@ -91,6 +104,7 @@ export default function MapView({ places, onPlaceClick, selectedPlace, center, a
         maxZoom={17}>
         <MapContent
           places={places}
+          privatePins={privatePins}
           onPlaceClick={onPlaceClick}
           selectedPlace={selectedPlace}
           center={center}

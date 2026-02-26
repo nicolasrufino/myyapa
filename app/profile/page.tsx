@@ -120,9 +120,12 @@ export default function ProfilePage() {
           </svg>
           Back to map
         </Link>
-        <span style={{ fontFamily: 'var(--font-viga)', color: 'var(--text-primary)' }} className="text-xl">
-          my<span style={{ color: '#9D00FF' }}>Yapa</span>
-        </span>
+        <Link href="/map"
+          style={{ fontFamily: 'var(--font-viga)' }}
+          className="text-xl">
+          <span style={{ color: 'var(--text-primary)' }}>my</span>
+          <span style={{ color: '#9D00FF' }}>Yapa</span>
+        </Link>
         <button
           onClick={signOut}
           className="text-xs font-semibold hover:opacity-70 transition-all"
@@ -375,7 +378,7 @@ export default function ProfilePage() {
             { label: ' My reviews', href: '/rewards?feature=reviews' },
             { label: ' Order history', href: '/rewards?feature=orders' },
             { label: ' Rewards & points', href: '/rewards?feature=rewards' },
-            { label: ' Add a place', href: '/rewards?feature=add' },
+            { label: ' Add a place', href: '/places/add' },
             { label: ' Support', href: '/rewards?feature=support' },
             { label: ' Account Settings', href: '/account' },
           ].map(({ label, href }) => (

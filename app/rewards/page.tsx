@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -22,6 +23,7 @@ function ComingSoonContent() {
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const searchParams = useSearchParams()
+  const router = useRouter()
 
   const featureKey = searchParams.get('feature') ?? 'rewards'
   const config = FEATURE_CONFIG[featureKey] ?? FEATURE_CONFIG.rewards
@@ -42,15 +44,16 @@ function ComingSoonContent() {
       {/* Nav */}
       <div className="flex items-center px-6 py-4 border-b sticky top-0 z-10"
         style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
-        <Link href="/profile"
+        <button
+          onClick={() => router.back()}
           className="flex items-center gap-2 text-sm font-semibold hover:opacity-70 transition-all"
           style={{ color: 'var(--text-primary)' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          Profile
-        </Link>
+          Back
+        </button>
       </div>
 
       {/* SVG line background */}

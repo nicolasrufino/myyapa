@@ -10,8 +10,8 @@ const BANNED_WORDS = ['admin', 'moderator', 'yapa', 'support', 'official', 'staf
 const validateUsername = (u: string) => {
   if (u.length < 3) return 'Username must be at least 3 characters'
   if (u.length > 20) return 'Username must be under 20 characters'
+  if (/[^\x00-\x7F]/.test(u)) return 'No emojis or special characters allowed'
   if (!/^[a-z0-9_.]+$/.test(u)) return 'Only lowercase letters, numbers, . and _ allowed'
-  if (/[^a-zA-Z0-9._]/.test(u)) return 'No emojis or special characters allowed'
   if (/^[._]/.test(u) || /[._]$/.test(u)) return 'Cannot start or end with . or _'
   if (/[_.]{2}/.test(u)) return 'Cannot have two special characters in a row'
   if (BANNED_WORDS.some(w => u.includes(w))) return 'That username is not allowed'
@@ -36,6 +36,7 @@ export default function LoginPage() {
   const usernameRef = useRef<HTMLInputElement>(null)
   const passwordRef = useRef<HTMLInputElement>(null)
   const confirmPasswordRef = useRef<HTMLInputElement>(null)
+  const loginPasswordRef = useRef<HTMLInputElement>(null)
 
   const signInWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
@@ -274,9 +275,8 @@ export default function LoginPage() {
               onChange={e => setEmail(e.target.value)}
               onKeyDown={e => {
                 if (e.key !== 'Enter') return
-                if (!username) usernameRef.current?.focus()
-                else if (!password) passwordRef.current?.focus()
-                else if (!confirmPassword) confirmPasswordRef.current?.focus()
+                const first = !email ? emailRef : !username ? usernameRef : !password ? passwordRef : !confirmPassword ? confirmPasswordRef : null
+                if (first) first.current?.focus()
                 else handleEmailAuth()
               }}
               className="w-full border rounded-full px-5 py-4 text-sm outline-none focus:border-[#9D00FF] transition-all"
@@ -290,11 +290,11 @@ export default function LoginPage() {
                 type="text"
                 placeholder="username"
                 value={username}
-                onChange={e => setUsername(e.target.value.toLowerCase().replace(/\s/g, ''))}
+                onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ''))}
                 onKeyDown={e => {
                   if (e.key !== 'Enter') return
-                  if (!password) passwordRef.current?.focus()
-                  else if (!confirmPassword) confirmPasswordRef.current?.focus()
+                  const first = !email ? emailRef : !username ? usernameRef : !password ? passwordRef : !confirmPassword ? confirmPasswordRef : null
+                  if (first) first.current?.focus()
                   else handleEmailAuth()
                 }}
                 className="flex-1 text-sm outline-none"
@@ -309,7 +309,8 @@ export default function LoginPage() {
               onChange={e => setPassword(e.target.value)}
               onKeyDown={e => {
                 if (e.key !== 'Enter') return
-                if (!confirmPassword) confirmPasswordRef.current?.focus()
+                const first = !email ? emailRef : !username ? usernameRef : !password ? passwordRef : !confirmPassword ? confirmPasswordRef : null
+                if (first) first.current?.focus()
                 else handleEmailAuth()
               }}
               className="w-full border rounded-full px-5 py-4 text-sm outline-none focus:border-[#9D00FF] transition-all"
@@ -321,7 +322,12 @@ export default function LoginPage() {
               placeholder="Confirm password"
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleEmailAuth()}
+              onKeyDown={e => {
+                if (e.key !== 'Enter') return
+                const first = !email ? emailRef : !username ? usernameRef : !password ? passwordRef : !confirmPassword ? confirmPasswordRef : null
+                if (first) first.current?.focus()
+                else handleEmailAuth()
+              }}
               className="w-full border rounded-full px-5 py-4 text-sm outline-none focus:border-[#9D00FF] transition-all"
               style={{ borderColor: 'var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
             />
@@ -333,14 +339,24 @@ export default function LoginPage() {
               placeholder="Email or username"
               value={identifier}
               onChange={e => setIdentifier(e.target.value)}
+              onKeyDown={e => {
+                if (e.key !== 'Enter') return
+                if (!password) loginPasswordRef.current?.focus()
+                else handleEmailAuth()
+              }}
               className="w-full border rounded-full px-5 py-4 text-sm outline-none focus:border-[#9D00FF] transition-all"
               style={{ borderColor: 'var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
             />
             <input
+              ref={loginPasswordRef}
               type="password"
               placeholder="Password"
               value={password}
               onChange={e => setPassword(e.target.value)}
+              onKeyDown={e => {
+                if (e.key !== 'Enter') return
+                if (identifier) handleEmailAuth()
+              }}
               className="w-full border rounded-full px-5 py-4 text-sm outline-none focus:border-[#9D00FF] transition-all"
               style={{ borderColor: 'var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
             />

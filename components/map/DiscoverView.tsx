@@ -1,5 +1,6 @@
 'use client'
 
+
 interface Place {
   id: string
   name: string
@@ -24,10 +25,10 @@ export default function DiscoverView({ places, onPlaceClick }: DiscoverViewProps
       </p>
       <div className="grid grid-cols-1 gap-3">
         {places.map(place => (
-          <button
+          <div
             key={place.id}
             onClick={() => onPlaceClick(place)}
-            className="w-full text-left rounded-2xl p-4 shadow-sm border hover:border-purple-200 hover:shadow-md transition-all"
+            className="w-full text-left rounded-2xl p-4 shadow-sm border hover:border-purple-200 hover:shadow-md transition-all block cursor-pointer"
             style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
 
             <div className="flex items-start justify-between gap-3">
@@ -62,7 +63,7 @@ export default function DiscoverView({ places, onPlaceClick }: DiscoverViewProps
                 </div>
               )}
             </div>
-          </button>
+          </div>
         ))}
 
         {places.length === 0 && (
