@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { CHICAGO_CAMPUSES } from '@/lib/campuses'
+import { SCHOOL_DOMAINS, SCHOOL_LOGO_OVERRIDES } from '@/lib/schoolLogos'
 import { useTheme } from '@/lib/context/ThemeContext'
 
 const CATEGORIES = [
@@ -29,11 +30,20 @@ export default function OnboardingPage() {
   const router = useRouter()
   const supabase = createClient()
   const { theme, setTheme } = useTheme()
-
-  const filteredCampuses = CHICAGO_CAMPUSES.filter(c =>
-    c.name.toLowerCase().includes(campusSearch.toLowerCase()) ||
-    c.university.toLowerCase().includes(campusSearch.toLowerCase())
+  const [darkMode, setDarkMode] = useState(
+    typeof window !== 'undefined'
+      ? window.matchMedia('(prefers-color-scheme: dark)').matches
+      : false
   )
+
+  const filteredCampuses = CHICAGO_CAMPUSES.filter(c => {
+    const q = campusSearch.toLowerCase()
+    return (
+      c.name.toLowerCase().includes(q) ||
+      c.university.toLowerCase().includes(q) ||
+      c.aliases?.some(a => a.toLowerCase().includes(q))
+    )
+  })
 
   const toggleCampus = (id: string) => {
     setSelectedCampuses(prev =>
@@ -72,7 +82,15 @@ export default function OnboardingPage() {
   }
 
   const skip = async () => {
-    await savePreferences()
+    setSaving(true)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      await supabase.from('users').update({
+        preferred_campuses: selectedCampuses,
+        preferred_categories: selectedCategories,
+      }).eq('id', user.id)
+    }
+    setSaving(false)
     router.push('/map')
   }
 
@@ -85,30 +103,42 @@ export default function OnboardingPage() {
     <main className="min-h-screen flex flex-col relative overflow-hidden"
       style={{ fontFamily: 'var(--font-dm)', background: 'var(--bg)' }}>
 
-      {/* Animated background shapes */}
+      {/* Line art background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <svg className="absolute top-0 right-0 w-96 h-96 opacity-10" viewBox="0 0 400 400">
-          <path d="M 300 0 Q 400 100 350 200 Q 300 300 400 400" fill="none" stroke="#9D00FF" strokeWidth="2"/>
-          <path d="M 350 0 Q 450 150 380 250 Q 320 350 420 400" fill="none" stroke="#9D00FF" strokeWidth="1.5"/>
-          <path d="M 400 50 Q 480 200 420 300 Q 360 400 450 450" fill="none" stroke="#7a00cc" strokeWidth="1"/>
+        <svg className="absolute top-0 right-0 opacity-40" style={{ width: '28rem', height: '28rem' }} viewBox="0 0 400 400">
+          <path d="M 300 0 Q 400 100 350 200 Q 300 300 400 400" fill="none" stroke="#7a00cc" strokeWidth="2.5"/>
+          <path d="M 350 0 Q 450 150 380 250 Q 320 350 420 400" fill="none" stroke="#7a00cc" strokeWidth="2"/>
+          <path d="M 400 50 Q 480 200 420 300 Q 360 400 450 450" fill="none" stroke="#5a0099" strokeWidth="1.5"/>
+          <path d="M 250 0 Q 370 80 310 180 Q 260 270 370 360" fill="none" stroke="#7a00cc" strokeWidth="1.5"/>
+          <path d="M 200 0 Q 340 60 270 160 Q 210 240 330 320" fill="none" stroke="#9D00FF" strokeWidth="1"/>
         </svg>
-        <svg className="absolute bottom-0 left-0 w-80 h-80 opacity-10" viewBox="0 0 400 400">
-          <path d="M 0 300 Q 100 200 50 100 Q 0 0 100 -50" fill="none" stroke="#9D00FF" strokeWidth="2"/>
-          <path d="M -50 350 Q 80 250 30 150 Q -20 50 80 0" fill="none" stroke="#9D00FF" strokeWidth="1.5"/>
+        <svg className="absolute bottom-0 left-0 opacity-40" style={{ width: '28rem', height: '28rem' }} viewBox="0 0 400 400">
+          <path d="M 100 400 Q 0 300 50 200 Q 100 100 0 0" fill="none" stroke="#7a00cc" strokeWidth="2.5"/>
+          <path d="M 50 400 Q -50 250 20 150 Q 80 50 -20 0" fill="none" stroke="#7a00cc" strokeWidth="2"/>
+          <path d="M 0 350 Q -80 200 -20 100 Q 40 0 -50 -50" fill="none" stroke="#5a0099" strokeWidth="1.5"/>
+          <path d="M 150 400 Q 30 320 90 220 Q 140 130 30 40" fill="none" stroke="#7a00cc" strokeWidth="1.5"/>
+          <path d="M 200 400 Q 60 340 130 240 Q 190 160 70 80" fill="none" stroke="#9D00FF" strokeWidth="1"/>
         </svg>
-        <svg className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 opacity-5" viewBox="0 0 400 400">
-          <circle cx="200" cy="200" r="150" fill="none" stroke="#9D00FF" strokeWidth="1"/>
-          <circle cx="200" cy="200" r="100" fill="none" stroke="#9D00FF" strokeWidth="1"/>
-          <circle cx="200" cy="200" r="50" fill="none" stroke="#9D00FF" strokeWidth="1"/>
+        <svg className="absolute top-0 left-0 opacity-40" style={{ width: '22rem', height: '22rem' }} viewBox="0 0 400 400">
+          <path d="M 0 100 Q 80 50 100 0" fill="none" stroke="#7a00cc" strokeWidth="2"/>
+          <path d="M 0 160 Q 120 90 150 0" fill="none" stroke="#7a00cc" strokeWidth="1.5"/>
+          <path d="M 0 220 Q 150 130 190 0" fill="none" stroke="#5a0099" strokeWidth="1"/>
+        </svg>
+        <svg className="absolute bottom-0 right-0 opacity-40" style={{ width: '22rem', height: '22rem' }} viewBox="0 0 400 400">
+          <path d="M 400 300 Q 320 350 300 400" fill="none" stroke="#7a00cc" strokeWidth="2"/>
+          <path d="M 400 240 Q 280 310 250 400" fill="none" stroke="#7a00cc" strokeWidth="1.5"/>
+          <path d="M 400 180 Q 250 270 210 400" fill="none" stroke="#5a0099" strokeWidth="1"/>
         </svg>
       </div>
 
       {/* Header */}
       <div className="relative z-10 px-6 pt-8 pb-4">
-        <span style={{ fontFamily: 'var(--font-viga)', color: 'var(--text-primary)' }}
-          className="text-2xl">
-          my<span style={{ color: '#9D00FF' }}>Yapa</span>
-        </span>
+        <div className="text-center mb-2">
+          <span style={{ fontFamily: 'var(--font-viga)', color: 'var(--text-primary)' }}
+            className="text-2xl">
+            my<span style={{ color: '#9D00FF' }}>Yapa</span>
+          </span>
+        </div>
 
         {/* Progress bar */}
         <div className="flex gap-2 mt-6">
@@ -128,10 +158,10 @@ export default function OnboardingPage() {
         {step === 'campuses' && (
           <>
             <h1 style={{ fontFamily: 'var(--font-viga)', color: 'var(--text-primary)' }}
-              className="text-2xl mb-1">
+              className="text-2xl mb-1 text-center">
               Which campuses are you at?
             </h1>
-            <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-sm mb-4 text-center" style={{ color: 'var(--text-secondary)' }}>
               Select all that apply — we'll show you deals near them.
             </p>
 
@@ -171,33 +201,64 @@ export default function OnboardingPage() {
               </div>
             )}
 
-            {/* Campus list */}
-            <div className="flex flex-col gap-2">
-              {filteredCampuses.map(campus => (
+            {/* Campus grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {[...filteredCampuses].sort((a, b) => {
+                const PINNED = ['northwestern', 'uchicago', 'uic', 'depaul-loop', 'depaul-lincoln-park']
+                const aPin = PINNED.indexOf(a.id)
+                const bPin = PINNED.indexOf(b.id)
+                if (aPin !== -1 && bPin !== -1) return aPin - bPin
+                if (aPin !== -1) return -1
+                if (bPin !== -1) return 1
+                return a.name.localeCompare(b.name)
+              }).map(campus => (
                 <button
                   key={campus.id}
                   onClick={() => toggleCampus(campus.id)}
-                  className="flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all text-left"
+                  className="relative flex flex-col items-center gap-2 p-3 rounded-2xl border transition-all text-center"
                   style={{
                     borderColor: selectedCampuses.includes(campus.id) ? '#9D00FF' : 'var(--border)',
-                    background: selectedCampuses.includes(campus.id) ? '#f5f0ff' : 'var(--card)'
+                    background: selectedCampuses.includes(campus.id) ? 'var(--card)' : 'var(--bg-secondary)'
                   }}>
-                  <div className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center shrink-0 border"
-                    style={{ borderColor: 'var(--border)', background: 'var(--bg-secondary)' }}>
-                    <span className="text-sm">🎓</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{campus.name}</div>
-                    <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>{campus.university}</div>
-                  </div>
                   {selectedCampuses.includes(campus.id) && (
-                    <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
+                    <div className="absolute top-2 right-2 w-4 h-4 rounded-full flex items-center justify-center"
                       style={{ background: '#9D00FF' }}>
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                      <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
                   )}
+                  <div className="w-14 h-14 rounded-xl overflow-hidden flex items-center justify-center shrink-0 border"
+                    style={{
+                      background: theme === 'dark' ? 'var(--bg-secondary)' : '#ffffff',
+                      borderColor: theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'var(--border)'
+                    }}>
+                    {['american-islamic', 'national-louis', 'chicago-state', 'north-park', 'college-lake-county'].includes(campus.id) ? (
+                      <span className="text-xs font-bold" style={{ color: '#9D00FF' }}>
+                        {campus.name.split(' ').map(w => w[0]).join('').slice(0, 3)}
+                      </span>
+                    ) : (
+                      <>
+                        <img
+                          src={SCHOOL_LOGO_OVERRIDES[campus.id] || `https://www.google.com/s2/favicons?domain=${SCHOOL_DOMAINS[campus.id]}&sz=64`}
+                          alt={campus.name}
+                          className="w-10 h-10 object-contain"
+                          onError={e => {
+                            e.currentTarget.style.display = 'none'
+                            const sib = e.currentTarget.nextElementSibling as HTMLElement | null
+                            if (sib) sib.style.display = 'block'
+                          }}
+                        />
+                        <span style={{ display: 'none', color: '#9D00FF' }} className="text-xs font-bold">
+                          {campus.name.split(' ').map(w => w[0]).join('').slice(0, 3)}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <div className="w-full">
+                    <div className="text-xs font-semibold leading-tight line-clamp-2" style={{ color: 'var(--text-primary)' }}>{campus.name}</div>
+                    <div className="text-xs mt-0.5 leading-tight line-clamp-1" style={{ color: 'var(--text-secondary)' }}>{campus.university}</div>
+                  </div>
                 </button>
               ))}
             </div>
@@ -208,10 +269,10 @@ export default function OnboardingPage() {
         {step === 'categories' && (
           <>
             <h1 style={{ fontFamily: 'var(--font-viga)', color: 'var(--text-primary)' }}
-              className="text-2xl mb-1">
+              className="text-2xl mb-1 text-center">
               What are you into?
             </h1>
-            <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-sm mb-6 text-center" style={{ color: 'var(--text-secondary)' }}>
               We'll show you the most relevant deals first.
             </p>
 
@@ -223,7 +284,7 @@ export default function OnboardingPage() {
                   className="relative flex flex-col items-start gap-1 px-4 py-4 rounded-2xl border transition-all text-left"
                   style={{
                     borderColor: selectedCategories.includes(cat.value) ? '#9D00FF' : 'var(--border)',
-                    background: selectedCategories.includes(cat.value) ? '#f5f0ff' : 'var(--card)'
+                    background: selectedCategories.includes(cat.value) ? 'var(--card)' : 'var(--bg-secondary)'
                   }}>
                   <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{cat.label}</span>
                   <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>{cat.desc}</span>
@@ -238,20 +299,31 @@ export default function OnboardingPage() {
                 </button>
               ))}
 
-              <div className="col-span-2 flex items-center justify-between px-4 py-4 rounded-2xl border mt-2"
-                style={{ borderColor: 'var(--border)' }}>
+            </div>
+
+            <div className="mt-6 flex items-center justify-between px-4 py-4 rounded-2xl border"
+              style={{ borderColor: 'var(--border)', background: 'var(--card)' }}>
+              <div className="flex items-center gap-3">
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"
+                  style={{ color: '#9D00FF', flexShrink: 0 }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                </svg>
                 <div>
                   <div className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Dark mode</div>
                   <div className="text-xs" style={{ color: 'var(--text-secondary)' }}>Easier on the eyes at night</div>
                 </div>
-                <button
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  className="w-12 h-6 rounded-full transition-all relative"
-                  style={{ background: theme === 'dark' ? '#9D00FF' : '#e5e7eb' }}>
-                  <div className="absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all"
-                    style={{ left: theme === 'dark' ? '26px' : '4px' }} />
-                </button>
               </div>
+              <button
+                onClick={() => {
+                  const next = !darkMode
+                  setDarkMode(next)
+                  setTheme(next ? 'dark' : 'light')
+                }}
+                className="w-12 h-6 rounded-full transition-all relative shrink-0"
+                style={{ background: darkMode ? '#9D00FF' : 'var(--border)' }}>
+                <div className="absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all"
+                  style={{ left: darkMode ? '26px' : '4px' }} />
+              </button>
             </div>
           </>
         )}
@@ -260,16 +332,20 @@ export default function OnboardingPage() {
         {step === 'edu' && (
           <>
             <h1 style={{ fontFamily: 'var(--font-viga)', color: 'var(--text-primary)' }}
-              className="text-2xl mb-1">
+              className="text-2xl mb-1 text-center">
               Verify your student status
             </h1>
-            <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-sm mb-6 text-center" style={{ color: 'var(--text-secondary)' }}>
               Add your .edu email to unlock rewards, your Yapa pass, and exclusive student pricing.
             </p>
 
             {eduPending ? (
               <div className="flex flex-col items-center gap-4 py-8 text-center">
-                <div className="text-4xl">📬</div>
+                <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'var(--bg-secondary)' }}>
+                  <svg width="28" height="28" fill="none" stroke="#9D00FF" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                  </svg>
+                </div>
                 <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Check your inbox!</p>
                 <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                   We sent a verification link to <strong>{eduEmail}</strong>
@@ -307,48 +383,56 @@ export default function OnboardingPage() {
         )}
       </div>
 
-      {/* Bottom actions */}
-      <div className="relative z-10 px-6 py-6 border-t flex flex-col gap-3 backdrop-blur-sm"
-        style={{ borderColor: 'var(--border)', background: 'var(--card)' }}>
-        {step !== 'edu' ? (
-          <button
-            onClick={nextStep}
-            className="w-full text-white rounded-full py-4 text-sm font-bold hover:opacity-90 transition-all"
-            style={{ background: '#9D00FF' }}>
-            {step === 'campuses'
-              ? selectedCampuses.length > 0
-                ? `Continue with ${selectedCampuses.length} campus${selectedCampuses.length > 1 ? 'es' : ''} →`
-                : 'Continue →'
-              : selectedCategories.length > 0
-                ? `Continue with ${selectedCategories.length} interest${selectedCategories.length > 1 ? 's' : ''} →`
-                : 'Continue →'
-            }
-          </button>
+      {/* Bottom actions — always visible */}
+      <div className="fixed bottom-0 left-0 right-0 px-6 py-6 border-t z-20"
+        style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+        {step === 'categories' || step === 'edu' ? (
+          <>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setStep(step === 'edu' ? 'categories' : 'campuses')}
+                className="flex-1 rounded-full py-4 text-sm font-bold border hover:bg-[var(--bg-secondary)] dark:hover:bg-white/10 transition-all"
+                style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
+                ← Back
+              </button>
+              <button
+                onClick={nextStep}
+                className="flex-1 text-white rounded-full py-4 text-sm font-bold hover:brightness-90 transition-all"
+                style={{ background: '#9D00FF' }}>
+                {step === 'categories' && selectedCategories.length > 0
+                  ? `Continue (${selectedCategories.length}) →`
+                  : 'Continue →'}
+              </button>
+            </div>
+            <button onClick={skip}
+              className="w-full rounded-full py-4 text-sm font-bold border mt-3 hover:bg-[var(--bg-secondary)] dark:hover:bg-white/10 transition-all"
+              style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
+              Skip setup
+            </button>
+          </>
         ) : (
-          <button
-            onClick={skip}
-            disabled={saving}
-            className="w-full border rounded-full py-4 text-sm font-semibold transition-all disabled:opacity-50"
-            style={{ borderColor: 'var(--border)', color: 'var(--text-secondary)' }}>
-            {saving ? 'Saving...' : 'Skip for now, explore the map →'}
-          </button>
-        )}
-
-        {step !== 'campuses' && (
-          <button
-            onClick={() => setStep(step === 'categories' ? 'campuses' : 'categories')}
-            className="text-xs text-center hover:opacity-70" style={{ color: 'var(--text-secondary)' }}>
-            ← Back
-          </button>
-        )}
-
-        {step === 'campuses' && (
-          <button onClick={skip}
-            className="text-xs text-center hover:opacity-70" style={{ color: 'var(--text-secondary)' }}>
-            Skip setup
-          </button>
+          <>
+            <button
+              onClick={nextStep}
+              className="w-full text-white rounded-full py-4 text-sm font-bold hover:brightness-90 transition-all"
+              style={{ background: '#9D00FF' }}>
+              {step === 'campuses' && selectedCampuses.length > 0
+                ? `Continue with ${selectedCampuses.length} campus${selectedCampuses.length > 1 ? 'es' : ''} →`
+                : 'Continue →'}
+            </button>
+            {step === 'campuses' && (
+              <button onClick={skip}
+                className="w-full rounded-full py-4 text-sm font-bold border mt-3 hover:bg-[var(--bg-secondary)] dark:hover:bg-white/10 transition-all"
+                style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
+                Skip setup
+              </button>
+            )}
+          </>
         )}
       </div>
+
+      {/* Add padding at bottom so content doesn't hide behind fixed bar */}
+      <div className="h-32" />
 
     </main>
   )

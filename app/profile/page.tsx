@@ -260,7 +260,7 @@ export default function ProfilePage() {
             style={{ borderColor: 'var(--border)' }}>
             <h3 style={{ fontFamily: 'var(--font-viga)', color: 'var(--text-primary)' }}
               className="text-lg">My Campuses</h3>
-            <Link href="/onboarding"
+            <Link href="/profile/campuses"
               className="text-xs font-semibold underline"
               style={{ color: '#9D00FF' }}>
               Edit
@@ -275,7 +275,7 @@ export default function ProfilePage() {
                     <span key={id}
                       className="px-3 py-1 rounded-full text-xs font-semibold border"
                       style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
-                      🎓 {campus.name}
+                      {campus.name}
                     </span>
                   ) : null
                 })}
@@ -283,7 +283,7 @@ export default function ProfilePage() {
             ) : (
               <div className="flex items-center justify-between">
                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No campuses added yet</p>
-                <Link href="/onboarding"
+                <Link href="/profile/campuses"
                   className="text-xs font-semibold text-white px-3 py-1 rounded-full"
                   style={{ background: '#9D00FF' }}>
                   Add →
@@ -300,7 +300,7 @@ export default function ProfilePage() {
             style={{ borderColor: 'var(--border)' }}>
             <h3 style={{ fontFamily: 'var(--font-viga)', color: 'var(--text-primary)' }}
               className="text-lg">My Interests</h3>
-            <Link href="/onboarding"
+            <Link href="/profile/interests"
               className="text-xs font-semibold underline"
               style={{ color: '#9D00FF' }}>
               Edit
@@ -309,24 +309,18 @@ export default function ProfilePage() {
           <div className="px-6 py-4">
             {(profile?.preferred_categories ?? []).length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {(profile?.preferred_categories ?? []).map(cat => {
-                  const emoji: Record<string, string> = {
-                    food: '🍕', coffee: '☕', drinks: '🥤',
-                    museums: '🎨', sports: '🏟️', theater: '🎭', shopping: '🛍️'
-                  }
-                  return (
-                    <span key={cat}
-                      className="px-3 py-1 rounded-full text-xs font-semibold border capitalize"
-                      style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
-                      {emoji[cat]} {cat}
-                    </span>
-                  )
-                })}
+                {(profile?.preferred_categories ?? []).map(cat => (
+                  <span key={cat}
+                    className="px-3 py-1 rounded-full text-xs font-semibold border capitalize"
+                    style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
+                    {cat}
+                  </span>
+                ))}
               </div>
             ) : (
               <div className="flex items-center justify-between">
                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>No interests added yet</p>
-                <Link href="/onboarding"
+                <Link href="/profile/interests"
                   className="text-xs font-semibold text-white px-3 py-1 rounded-full"
                   style={{ background: '#9D00FF' }}>
                   Add →
@@ -377,13 +371,13 @@ export default function ProfilePage() {
         <div className="rounded-2xl border overflow-hidden"
           style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
           {[
-            { label: ' Saved places', href: '/profile/saved' },
-            { label: ' My reviews', href: '/profile/reviews' },
-            { label: ' Order history', href: '/profile/orders' },
-            { label: ' Rewards & points', href: '/rewards' },
-            { label: ' Add a place', href: '/places/add' },
-            { label: ' Support', href: '/support' },
-          { label: ' Account Settings', href: '/account' },
+            { label: ' Saved places', href: '/rewards?feature=saved' },
+            { label: ' My reviews', href: '/rewards?feature=reviews' },
+            { label: ' Order history', href: '/rewards?feature=orders' },
+            { label: ' Rewards & points', href: '/rewards?feature=rewards' },
+            { label: ' Add a place', href: '/rewards?feature=add' },
+            { label: ' Support', href: '/rewards?feature=support' },
+            { label: ' Account Settings', href: '/account' },
           ].map(({ label, href }) => (
             <Link key={href} href={href}
               className="flex items-center justify-between px-6 py-4 border-b last:border-0 hover:opacity-80 transition-all text-sm"

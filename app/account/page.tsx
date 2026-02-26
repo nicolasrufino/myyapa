@@ -170,7 +170,7 @@ export default function AccountSettingsPage() {
             stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          Account Settings
+          Profile
         </Link>
       </div>
 

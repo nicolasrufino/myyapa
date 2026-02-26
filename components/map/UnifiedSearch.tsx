@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, JSX } from 'react'
 import { useRouter } from 'next/navigation'
 import { CHICAGO_CAMPUSES, Campus } from '@/lib/campuses'
+import { SCHOOL_DOMAINS, SCHOOL_LOGO_OVERRIDES } from '@/lib/schoolLogos'
 
 const CATEGORY_ICONS: Record<string, JSX.Element> = {
   food: <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12M3 12h18"/></svg>,
@@ -33,71 +34,6 @@ interface UnifiedSearchProps {
   campusName: string | null
 }
 
-const SCHOOL_DOMAINS: Record<string, string> = {
-  'depaul-loop': 'depaul.edu',
-  'depaul-lincoln-park': 'depaul.edu',
-  'uic': 'uic.edu',
-  'uic-west': 'uic.edu',
-  'uchicago': 'uchicago.edu',
-  'loyola': 'luc.edu',
-  'loyola-maywood': 'luc.edu',
-  'northwestern': 'northwestern.edu',
-  'northwestern-evanston': 'northwestern.edu',
-  'columbia-college': 'colum.edu',
-  'iit': 'iit.edu',
-  'roosevelt': 'roosevelt.edu',
-  'saic': 'saic.edu',
-  'neiu': 'neiu.edu',
-  'chicago-state': 'csu.edu',
-  'ccc-harold-washington': 'ccc.edu',
-  'ccc-daley': 'ccc.edu',
-  'ccc-kennedy-king': 'ccc.edu',
-  'ccc-malcolm-x': 'ccc.edu',
-  'ccc-olive-harvey': 'ccc.edu',
-  'ccc-truman': 'ccc.edu',
-  'ccc-wilbur-wright': 'ccc.edu',
-  'north-park': 'northpark.edu',
-  'concordia': 'cuchicago.edu',
-  'dominican': 'dom.edu',
-  'elmhurst': 'elmhurst.edu',
-  'wheaton': 'wheaton.edu',
-  'north-central': 'northcentralcollege.edu',
-  'benedictine': 'ben.edu',
-  'aurora': 'aurora.edu',
-  'governors-state': 'govst.edu',
-  'purdue-northwest-hammond': 'pnw.edu',
-  'purdue-northwest-westville': 'pnw.edu',
-  'valparaiso': 'valpo.edu',
-  'iu-northwest': 'iun.edu',
-  'college-lake-county': 'clcillinois.edu',
-  'lake-forest': 'lakeforest.edu',
-  'rosalind-franklin': 'rosalindfranklin.edu',
-  'trinity-international': 'tiu.edu',
-  'judson': 'judsonu.edu',
-  'waubonsee': 'waubonsee.edu',
-  'college-dupage': 'cod.edu',
-  'moraine-valley': 'morainevalley.edu',
-  'south-suburban': 'ssc.edu',
-  'prairie-state': 'prairiestate.edu',
-  'harper': 'harpercollege.edu',
-  'elgin-community': 'elgin.edu',
-  'oakton': 'oakton.edu',
-  'triton': 'triton.edu',
-  'joliet-junior': 'jjc.edu',
-  'lewis': 'lewisu.edu',
-  'st-francis': 'stfrancis.edu',
-  'northern-illinois': 'niu.edu',
-  'rush': 'rush.edu',
-  'midwestern': 'midwestern.edu',
-  'moody': 'moody.edu',
-  'national-louis': 'nl.edu',
-}
-
-const SCHOOL_LOGO_OVERRIDES: Record<string, string> = {
-  'depaul-loop': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/DePaul_Athletics_Logo_NEW2025.png/330px-DePaul_Athletics_Logo_NEW2025.png',
-  'depaul-lincoln-park': 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/DePaul_Athletics_Logo_NEW2025.png/330px-DePaul_Athletics_Logo_NEW2025.png',
-  'iit': 'https://upload.wikimedia.org/wikipedia/en/thumb/9/96/Illinois_Institute_of_Technology_%28seal%29.svg/330px-Illinois_Institute_of_Technology_%28seal%29.svg.png',
-}
 
 function getDistance(lat1: number, lng1: number, lat2: number, lng2: number) {
   const R = 3959 // miles

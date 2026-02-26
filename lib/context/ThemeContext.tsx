@@ -18,36 +18,48 @@ const ThemeContext = createContext<ThemeContextType>({
 })
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('light')
+  // Initialize immediately from localStorage to prevent flicker
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'light'
+    const saved = localStorage.getItem('yapa-theme') as Theme
+    if (saved) return saved
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  })
+
   const supabase = createClient()
 
-  useEffect(() => {
-    const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        const { data } = await supabase
-          .from('users')
-          .select('theme')
-          .eq('id', user.id)
-          .single()
-        if (data?.theme) {
-          setThemeState(data.theme as Theme)
-          return
-        }
-      }
-      const saved = localStorage.getItem('yapa-theme') as Theme
-      if (saved) setThemeState(saved)
-    }
-    load()
-  }, [])
-
+  // Apply theme class immediately on every render
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
-    localStorage.setItem('yapa-theme', theme)
   }, [theme])
 
+  // Then sync with Supabase in background
+  useEffect(() => {
+    const syncWithDB = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data } = await supabase
+        .from('users')
+        .select('theme')
+        .eq('id', user.id)
+        .single()
+
+      if (data?.theme && data.theme !== theme) {
+        setThemeState(data.theme as Theme)
+        localStorage.setItem('yapa-theme', data.theme)
+      }
+    }
+    syncWithDB()
+  }, [])
+
   const setTheme = async (t: Theme) => {
+    // Update immediately — no waiting
     setThemeState(t)
+    localStorage.setItem('yapa-theme', t)
+    document.documentElement.classList.toggle('dark', t === 'dark')
+
+    // Sync to DB in background
     const { data: { user } } = await supabase.auth.getUser()
     if (user) {
       await supabase.from('users').update({ theme: t }).eq('id', user.id)

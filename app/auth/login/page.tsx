@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -11,6 +11,7 @@ const validateUsername = (u: string) => {
   if (u.length < 3) return 'Username must be at least 3 characters'
   if (u.length > 20) return 'Username must be under 20 characters'
   if (!/^[a-z0-9_.]+$/.test(u)) return 'Only lowercase letters, numbers, . and _ allowed'
+  if (/[^a-zA-Z0-9._]/.test(u)) return 'No emojis or special characters allowed'
   if (/^[._]/.test(u) || /[._]$/.test(u)) return 'Cannot start or end with . or _'
   if (/[_.]{2}/.test(u)) return 'Cannot have two special characters in a row'
   if (BANNED_WORDS.some(w => u.includes(w))) return 'That username is not allowed'
@@ -30,6 +31,11 @@ export default function LoginPage() {
   const [success, setSuccess] = useState('')
   const router = useRouter()
   const supabase = createClient()
+
+  const emailRef = useRef<HTMLInputElement>(null)
+  const usernameRef = useRef<HTMLInputElement>(null)
+  const passwordRef = useRef<HTMLInputElement>(null)
+  const confirmPasswordRef = useRef<HTMLInputElement>(null)
 
   const signInWithGoogle = async () => {
     await supabase.auth.signInWithOAuth({
@@ -101,24 +107,28 @@ export default function LoginPage() {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-          data: { username }
-        }
+        options: { data: { username } }
       })
 
       if (error) {
         setError(error.message)
-      } else {
-        if (data.user) {
-          await supabase.from('users').upsert({
-            id: data.user.id,
-            username,
-            display_name: username,
-            personal_email: email,
-            edu_verified: false,
-          })
-        }
+        setLoading(false)
+        return
+      }
+
+      if (data.user) {
+        await new Promise(resolve => setTimeout(resolve, 500))
+
+        await supabase.from('users').insert({
+          id: data.user.id,
+          username,
+          display_name: username,
+          personal_email: email,
+          edu_verified: false,
+          review_count: 0,
+          rewards_balance: 0,
+        })
+
         router.push('/onboarding')
       }
     } else {
@@ -257,10 +267,18 @@ export default function LoginPage() {
         {isSignUp ? (
           <>
             <input
+              ref={emailRef}
               type="email"
               placeholder="Email address"
               value={email}
               onChange={e => setEmail(e.target.value)}
+              onKeyDown={e => {
+                if (e.key !== 'Enter') return
+                if (!username) usernameRef.current?.focus()
+                else if (!password) passwordRef.current?.focus()
+                else if (!confirmPassword) confirmPasswordRef.current?.focus()
+                else handleEmailAuth()
+              }}
               className="w-full border rounded-full px-5 py-4 text-sm outline-none focus:border-[#9D00FF] transition-all"
               style={{ borderColor: 'var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
             />
@@ -268,27 +286,42 @@ export default function LoginPage() {
               style={{ borderColor: 'var(--border)', background: 'var(--bg-secondary)' }}>
               <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>@</span>
               <input
+                ref={usernameRef}
                 type="text"
                 placeholder="username"
                 value={username}
                 onChange={e => setUsername(e.target.value.toLowerCase().replace(/\s/g, ''))}
+                onKeyDown={e => {
+                  if (e.key !== 'Enter') return
+                  if (!password) passwordRef.current?.focus()
+                  else if (!confirmPassword) confirmPasswordRef.current?.focus()
+                  else handleEmailAuth()
+                }}
                 className="flex-1 text-sm outline-none"
                 style={{ background: 'transparent', color: 'var(--text-primary)' }}
               />
             </div>
             <input
+              ref={passwordRef}
               type="password"
               placeholder="Password"
               value={password}
               onChange={e => setPassword(e.target.value)}
+              onKeyDown={e => {
+                if (e.key !== 'Enter') return
+                if (!confirmPassword) confirmPasswordRef.current?.focus()
+                else handleEmailAuth()
+              }}
               className="w-full border rounded-full px-5 py-4 text-sm outline-none focus:border-[#9D00FF] transition-all"
               style={{ borderColor: 'var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
             />
             <input
+              ref={confirmPasswordRef}
               type="password"
               placeholder="Confirm password"
               value={confirmPassword}
               onChange={e => setConfirmPassword(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleEmailAuth()}
               className="w-full border rounded-full px-5 py-4 text-sm outline-none focus:border-[#9D00FF] transition-all"
               style={{ borderColor: 'var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
             />

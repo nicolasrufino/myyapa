@@ -7,16 +7,14 @@ import { Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
 const FEATURE_CONFIG: Record<string, { emoji: string; type: string; label: string }> = {
-  rewards: {
-    emoji: '🎁',
-    type: 'rewards',
-    label: 'rewards',
-  },
-  app: {
-    emoji: '📱',
-    type: 'app',
-    label: 'the app',
-  },
+  rewards: { emoji: '🎁', type: 'rewards', label: 'Rewards & points' },
+  app: { emoji: '📱', type: 'app', label: 'The app' },
+  saved: { emoji: '🔖', type: 'saved', label: 'Saved places' },
+  reviews: { emoji: '⭐', type: 'reviews', label: 'My reviews' },
+  orders: { emoji: '🧾', type: 'orders', label: 'Order history' },
+  add: { emoji: '📍', type: 'add', label: 'Add a place' },
+  support: { emoji: '💬', type: 'support', label: 'Support' },
+  account: { emoji: '⚙️', type: 'account', label: 'Account settings' },
 }
 
 function ComingSoonContent() {
@@ -38,8 +36,22 @@ function ComingSoonContent() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden"
+    <main className="min-h-screen flex flex-col relative overflow-hidden"
       style={{ fontFamily: 'var(--font-dm)', background: 'var(--bg)' }}>
+
+      {/* Nav */}
+      <div className="flex items-center px-6 py-4 border-b sticky top-0 z-10"
+        style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+        <Link href="/profile"
+          className="flex items-center gap-2 text-sm font-semibold hover:opacity-70 transition-all"
+          style={{ color: 'var(--text-primary)' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Profile
+        </Link>
+      </div>
 
       {/* SVG line background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -69,6 +81,7 @@ function ComingSoonContent() {
         </svg>
       </div>
 
+      <div className="flex-1 flex items-center justify-center px-6">
       <div className="relative z-10 max-w-sm w-full text-center flex flex-col items-center gap-6">
         <Link href="/" style={{ fontFamily: 'var(--font-viga)', color: 'var(--text-primary)' }}
           className="text-2xl">
@@ -80,10 +93,10 @@ function ComingSoonContent() {
         <div>
           <h1 style={{ fontFamily: 'var(--font-viga)', color: 'var(--text-primary)' }}
             className="text-3xl mb-2">
-            The team is working hard on this!
+            Coming soon
           </h1>
           <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-            We're building something really cool — {config.label} is on the way. Drop your email and we'll let you know the moment it's live.
+            {config.label} is on the way — we're working hard to get it ready. Drop your email and we'll let you know the moment it's live.
           </p>
         </div>
 
@@ -113,11 +126,7 @@ function ComingSoonContent() {
           </div>
         )}
 
-        <Link href="/map"
-          className="text-xs underline hover:opacity-70"
-          style={{ color: 'var(--text-secondary)' }}>
-          Go to Yapa Map →
-        </Link>
+      </div>
       </div>
     </main>
   )
