@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 import { useSearchParams } from 'next/navigation'
@@ -42,6 +42,8 @@ function MapPageContent() {
   const [userLocation, setUserLocation] = useState<{ lat: number, lng: number } | null>(null)
   const [locating, setLocating] = useState(false)
   const [selectedPlaceCenter, setSelectedPlaceCenter] = useState<{ lat: number, lng: number } | null>(null)
+  const [navHeight, setNavHeight] = useState(0)
+  const navRef = useRef<HTMLDivElement>(null)
   const searchParams = useSearchParams()
   const supabase = createClient()
   const { theme } = useTheme()
@@ -119,6 +121,16 @@ function MapPageContent() {
     fetchSaved()
   }, [])
 
+  // Measure nav height so the drawer can align to the map area
+  useEffect(() => {
+    const el = navRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setNavHeight(el.offsetHeight))
+    ro.observe(el)
+    setNavHeight(el.offsetHeight)
+    return () => ro.disconnect()
+  }, [])
+
   const locateUser = () => {
     // Toggle location on/off
     if (userLocation) {
@@ -168,6 +180,7 @@ function MapPageContent() {
   }
 
   const handlePlaceSelect = (place: Place) => {
+    console.log('handlePlaceSelect called:', place.name)
     setSelectedPlace(place)
     setSelectedPlaceCenter({ lat: place.lat, lng: place.lng })
   }
@@ -176,7 +189,7 @@ function MapPageContent() {
     <div className="relative w-full h-screen overflow-hidden flex flex-col">
 
       {/* TOP NAV */}
-      <div className="border-b px-4 pt-2 pb-0 z-10 shrink-0"
+      <div ref={navRef} className="border-b px-4 pt-2 pb-0 z-10 shrink-0"
         style={{ background: 'var(--bg)', borderColor: 'var(--border)' }}>
 
         {/* Row 1 — logo + search + avatar */}
@@ -360,6 +373,7 @@ function MapPageContent() {
         <PlaceDrawer
           place={selectedPlace}
           onClose={() => setSelectedPlace(null)}
+          navHeight={navHeight}
         />
       )}
 

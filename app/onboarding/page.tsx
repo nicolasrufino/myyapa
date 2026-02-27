@@ -16,7 +16,7 @@ const CATEGORIES = [
   { value: 'theater', label: 'Theater', desc: 'Shows & performances' },
 ]
 
-const STEPS = ['campuses', 'categories', 'edu'] as const
+const STEPS = ['campuses', 'categories'] as const
 type Step = typeof STEPS[number]
 
 export default function OnboardingPage() {
@@ -24,10 +24,6 @@ export default function OnboardingPage() {
   const [selectedCampuses, setSelectedCampuses] = useState<string[]>([])
   const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [campusSearch, setCampusSearch] = useState('')
-  const [eduEmail, setEduEmail] = useState('')
-  const [eduPending, setEduPending] = useState(false)
-  const [eduLoading, setEduLoading] = useState(false)
-  const [eduError, setEduError] = useState('')
   const [saving, setSaving] = useState(false)
   const router = useRouter()
   const supabase = createClient()
@@ -115,8 +111,13 @@ export default function OnboardingPage() {
   }
 
   const nextStep = async () => {
-    if (step === 'campuses') setStep('categories')
-    else if (step === 'categories') setStep('edu')
+    if (step === 'campuses') {
+      setStep('categories')
+    } else if (step === 'categories') {
+      // final step, save preferences and redirect
+      await savePreferences()
+      router.push('/map')
+    }
   }
 
   return (
@@ -384,6 +385,7 @@ export default function OnboardingPage() {
                   placeholder="yourname@university.edu"
                   value={eduEmail}
                   onChange={e => setEduEmail(e.target.value)}
+                  onKeyDown={e => { if (e.key === 'Enter') sendEduVerification() }}
                   className="w-full border rounded-full px-5 py-4 text-sm outline-none focus:border-[#9D00FF] transition-all"
                   style={{ borderColor: 'var(--border)', background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
                 />
@@ -409,11 +411,11 @@ export default function OnboardingPage() {
       {/* Bottom actions — always visible */}
       <div className="fixed bottom-0 left-0 right-0 px-6 py-6 border-t z-20"
         style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
-        {step === 'categories' || step === 'edu' ? (
+        {step === 'categories' ? (
           <>
             <div className="flex gap-3">
               <button
-                onClick={() => setStep(step === 'edu' ? 'categories' : 'campuses')}
+                onClick={() => setStep('campuses')}
                 className="flex-1 rounded-full py-4 text-sm font-bold border hover:bg-[var(--bg-secondary)] dark:hover:bg-white/10 transition-all"
                 style={{ borderColor: 'var(--border)', color: 'var(--text-primary)' }}>
                 ← Back
@@ -422,9 +424,7 @@ export default function OnboardingPage() {
                 onClick={nextStep}
                 className="flex-1 text-white rounded-full py-4 text-sm font-bold hover:brightness-90 transition-all"
                 style={{ background: '#9D00FF' }}>
-                {step === 'categories' && selectedCategories.length > 0
-                  ? `Continue (${selectedCategories.length}) →`
-                  : 'Continue →'}
+                Done
               </button>
             </div>
             <button onClick={skip}

@@ -133,6 +133,7 @@ export default function VerifyEduPage() {
                 placeholder="yourname@university.edu"
                 value={eduEmail}
                 onChange={e => { setEduEmail(e.target.value); setError('') }}
+                onKeyDown={e => e.key === 'Enter' && sendCode()}
                 className="w-full border rounded-full px-5 py-4 text-sm outline-none transition-all"
                 style={{
                   borderColor: error ? '#ef4444' : 'var(--border)',
@@ -183,6 +184,7 @@ export default function VerifyEduPage() {
                 maxLength={6}
                 value={code}
                 onChange={e => { setCode(e.target.value.replace(/\D/g, '')); setError('') }}
+                onKeyDown={e => e.key === 'Enter' && verifyCode()}
                 className="w-full border rounded-full px-5 py-4 text-center text-xl font-bold tracking-widest outline-none transition-all"
                 style={{
                   borderColor: error ? '#ef4444' : 'var(--border)',

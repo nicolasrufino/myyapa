@@ -43,9 +43,11 @@ export async function POST(req: NextRequest) {
     edu_verified: false,
   }).eq('id', userId)
 
+  console.log('RESEND_API_KEY prefix:', process.env.RESEND_API_KEY?.slice(0, 5))
+
   // Send email via Resend
-  const { error: emailError } = await resend.emails.send({
-    from: 'myYapa <onboarding@resend.dev>',
+  const { data: emailData, error: emailError } = await resend.emails.send({
+    from: 'myYapa <verify@myyapa.com>',
     to: eduEmail,
     subject: `${code} is your Yapa verification code`,
     html: `
@@ -62,8 +64,11 @@ export async function POST(req: NextRequest) {
   })
 
   if (emailError) {
+    console.error('Resend full error:', JSON.stringify(emailError, null, 2))
     return NextResponse.json({ error: 'Failed to send email' }, { status: 500 })
   }
+
+  console.log('Resend success:', emailData)
 
   return NextResponse.json({ success: true })
 }

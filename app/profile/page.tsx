@@ -110,7 +110,7 @@ export default function ProfilePage() {
     <main className="min-h-screen" style={{ fontFamily: 'var(--font-dm)', background: 'var(--bg-secondary)' }}>
 
       {/* Nav */}
-      <div className="border-b px-6 py-4 flex items-center justify-between"
+      <div className="border-b px-6 py-4 flex items-center justify-between sticky top-0 z-10"
         style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
         <Link href="/map"
           className="flex items-center gap-2 text-sm hover:opacity-70 transition-all"
@@ -193,28 +193,11 @@ export default function ProfilePage() {
                 </h2>
                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{authUser?.email}</p>
 
-                {/* Verification badge */}
-                {profile?.edu_verified ? (
-                  <div className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1 rounded-full text-xs font-semibold"
-                    style={{ background: theme === 'dark' ? '#052e16' : '#dcfce7', color: '#16a34a' }}>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    Student verified
-                  </div>
-                ) : (
-                  <Link href="/verify-edu"
-                    className="inline-flex items-center gap-1 mt-2 px-3 py-1 rounded-full text-xs font-bold text-white"
-                    style={{ background: '#9D00FF' }}>
-                    Verify student email →
-                  </Link>
-                )}
-
                 <button
                   onClick={() => setEditing(true)}
                   className="block text-xs mt-2 font-semibold underline"
                   style={{ color: '#9D00FF' }}>
-                  Edit profile
+                  Edit username
                 </button>
               </>
             )}
@@ -245,11 +228,13 @@ export default function ProfilePage() {
               <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
                 Verify your .edu email to unlock rewards, your Yapa pass, and student pricing.
               </p>
+              {/*
               <Link href="/verify-edu"
                 className="inline-flex text-xs font-bold text-white px-4 py-2 rounded-full w-fit"
                 style={{ background: '#9D00FF' }}>
                 Verify now →
               </Link>
+              */}
             </div>
           )}
         </div>

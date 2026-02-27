@@ -12,10 +12,11 @@ const StarIcon = ({ filled }: { filled: boolean }) => (
   </svg>
 )
 
-export default function PlaceDrawer({ place, onClose }: { place: any, onClose: () => void }) {
-  // prevent rendering when no place is provided (null/undefined)
+export default function PlaceDrawer({ place, onClose, navHeight = 0 }: { place: any, onClose: () => void, navHeight?: number }) {
   if (!place) return null
+
   const { theme } = useTheme()
+  const [isMobile, setIsMobile] = useState(true)
   const [tab, setTab] = useState<'info' | 'reviews'>('info')
   const [reviews, setReviews] = useState<any[]>([])
   const [loadingReviews, setLoadingReviews] = useState(false)
@@ -32,6 +33,14 @@ export default function PlaceDrawer({ place, onClose }: { place: any, onClose: (
   const [reportSent, setReportSent] = useState(false)
   const supabase = createClient()
 
+  // Detect mobile vs desktop
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
   useEffect(() => {
     const load = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -40,16 +49,15 @@ export default function PlaceDrawer({ place, onClose }: { place: any, onClose: (
     load()
   }, [])
 
-  // check whether the current user has saved this place
   useEffect(() => {
     const checkSaved = async () => {
       if (!user) return
       const { data } = await supabase
         .from('saved_places')
-        .select('id')
+        .select('*')
         .eq('user_id', user.id)
         .eq('place_id', place.id)
-        .single()
+        .maybeSingle()
       setSaved(!!data)
     }
     checkSaved()
@@ -120,27 +128,47 @@ export default function PlaceDrawer({ place, onClose }: { place: any, onClose: (
     )
   }
 
+  const drawerStyle = isMobile
+    ? {
+        bottom: 0,
+        left: 0,
+        right: 0,
+        borderRadius: '24px 24px 0 0',
+        background: 'var(--card)',
+        borderTop: '1px solid var(--border)',
+        boxShadow: '0 -8px 40px rgba(0,0,0,0.2)',
+        maxHeight: '80vh',
+      }
+    : {
+        right: 0,
+        top: navHeight,
+        bottom: 0,
+        width: '380px',
+        borderTopLeftRadius: '24px',
+        borderBottomLeftRadius: '0px',
+        background: 'var(--card)',
+        borderLeft: '1px solid var(--border)',
+        borderTop: '1px solid var(--border)',
+        boxShadow: '-8px 0 40px rgba(0,0,0,0.2)',
+      }
+
   return (
     <>
       {/* Backdrop */}
       <div className="fixed inset-0 z-40 bg-black/40" onClick={onClose} />
 
-      {/* Drawer */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl flex flex-col"
-        style={{
-          background: 'var(--card)',
-          borderTop: '1px solid var(--border)',
-          boxShadow: '0 -8px 40px rgba(0,0,0,0.2)',
-          maxHeight: '80vh'
-        }}>
+      {/* Drawer — bottom sheet on mobile, right panel on desktop */}
+      <div className="fixed z-50 flex flex-col" style={drawerStyle}>
 
-        {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-1 shrink-0">
-          <div className="w-10 h-1 rounded-full" style={{ background: 'var(--border)' }} />
-        </div>
+        {/* Drag handle — mobile only */}
+        {isMobile && (
+          <div className="flex justify-center pt-3 pb-1 shrink-0">
+            <div className="w-10 h-1 rounded-full" style={{ background: 'var(--border)' }} />
+          </div>
+        )}
 
         {/* Header */}
-        <div className="px-5 pt-2 pb-3 shrink-0">
+        <div className="px-5 pt-4 pb-3 shrink-0">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3 flex-1">
               {place.logo_url && (
@@ -283,6 +311,7 @@ export default function PlaceDrawer({ place, onClose }: { place: any, onClose: (
                   Reviews
                 </button>
               </div>
+
               {/* Report button */}
               <button onClick={() => setShowReport(true)}
                 className="w-full flex items-center justify-center gap-2 py-2.5 rounded-2xl border transition-all hover:opacity-70"
@@ -394,6 +423,7 @@ export default function PlaceDrawer({ place, onClose }: { place: any, onClose: (
           )}
         </div>
       </div>
+
       {/* Report modal */}
       {showReport && (
         <div className="fixed inset-0 z-[60] flex items-end justify-center"

@@ -29,15 +29,19 @@ interface MapViewProps {
 }
 
 function MapContent({ places, privatePins, onPlaceClick, onPrivatePinClick, selectedPlace, center, activePlaceIds, userLocation, savedPlaceIds }: MapViewProps) {
-  const map = useMap('9572d59f0ba67a57f25bf982')
+  // No ID argument — gets the nearest Map instance from context
+  const map = useMap()
   const prevCenter = useRef<{ lat: number, lng: number } | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Pan to selected place on click — no zoom
+  // Pan to selected place — zoom to 16 if needed
   useEffect(() => {
     if (!map || !selectedPlace) return
+    console.log('panning to:', selectedPlace.name)
+    if ((map.getZoom() ?? 0) < 16) map.setZoom(16)
     map.panTo({ lat: selectedPlace.lat, lng: selectedPlace.lng })
+    prevCenter.current = { lat: selectedPlace.lat, lng: selectedPlace.lng }
   }, [map, selectedPlace])
 
   // Pan to campus / user location — no zoom, deduplicated

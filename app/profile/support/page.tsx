@@ -36,15 +36,16 @@ export default function SupportPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
-      <div className="flex items-center gap-4 px-5 pt-12 pb-4">
-        <Link href="/profile" style={{ color: 'var(--text-primary)' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+      <div className="flex items-center gap-4 px-6 py-4 border-b sticky top-0 z-10"
+        style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+        <Link href="/profile"
+          className="flex items-center gap-2 text-sm font-semibold"
+          style={{ color: 'var(--text-primary)' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
+          Profile
         </Link>
-        <h1 style={{ fontFamily: 'var(--font-viga)', color: 'var(--text-primary)' }} className="text-2xl">
-          Support
-        </h1>
       </div>
 
       <div className="px-5 pb-10">

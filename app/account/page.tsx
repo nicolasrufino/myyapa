@@ -226,6 +226,7 @@ export default function AccountSettingsPage() {
               placeholder="Current password"
               value={currentPassword}
               onChange={e => setCurrentPassword(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') handleChangePassword() }}
               className="w-full rounded-full px-5 py-3 text-sm outline-none border transition-all"
               style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
             />
@@ -236,6 +237,7 @@ export default function AccountSettingsPage() {
             placeholder={hasPassword ? 'New password' : 'Create a password'}
             value={newPassword}
             onChange={e => setNewPassword(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleChangePassword() }}
             className="w-full rounded-full px-5 py-3 text-sm outline-none border transition-all"
             style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
           />
@@ -244,6 +246,7 @@ export default function AccountSettingsPage() {
             placeholder="Confirm password"
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleChangePassword() }}
             className="w-full rounded-full px-5 py-3 text-sm outline-none border transition-all"
             style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
           />
@@ -292,6 +295,7 @@ export default function AccountSettingsPage() {
             placeholder="New email address"
             value={newEmail}
             onChange={e => setNewEmail(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleChangeEmail() }}
             className="w-full rounded-full px-5 py-3 text-sm outline-none border transition-all"
             style={{ background: 'var(--bg-secondary)', borderColor: 'var(--border)', color: 'var(--text-primary)' }}
           />
@@ -355,6 +359,7 @@ export default function AccountSettingsPage() {
                 placeholder='delete my account'
                 value={deleteConfirm}
                 onChange={e => setDeleteConfirm(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleDeleteAccount() }}
                 className="w-full rounded-full px-5 py-3 text-sm outline-none border border-red-300 transition-all"
                 style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}
               />
